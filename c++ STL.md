@@ -8,7 +8,7 @@
 
 -   **`numeric_limits<T>::<max()|min()>`** ：**`T`** 型的**最值** 
 
-### 容器
+### 容器/ string
 
 -   **`std::find(it1, it2, val)`** ：（没啥用） 查找 **`it1`** 到 **`it2`** 间值为 **`val`** 的第一个元素并返回其位置处迭代器，**`it1`** 和 **`it2`** 为迭代器 
 
@@ -20,13 +20,13 @@
 
 -   **`std::swap(c1, c2)`** ：**`.swap`** 的优化，通过只交换变量名来交换两个对象的内容（更快）
 
--   **`std::reverse(str.begin(), str.end());`**
+-   **`std::reverse(str.begin(), str.end());`** *（无返回值，原地改变）*
 
     ```
     #include<algorithm>;
     ```
 
--   **`std::sort(first, last)`** ：默认的升序排序，**`first`** 和 **`last`** 为迭代器
+-   **`std::sort(first, last)`** ：默认的升序排序，**`first`** 和 **`last`** 为迭代器*（无返回值，原地改变）*
 
 -   **`std::sort(first, last, cmp)`** ：
 
@@ -35,9 +35,9 @@
     ```
 
     ```c++
-    bool cmp(const <T> &a, const <T> &b) {
+    static bool cmp(const <T> &a, const <T> &b) {
         return a > b;  // 降序
-    }
+    }// 必须有static！！
     ```
 
 -   
@@ -72,7 +72,64 @@
 -   list 是链表，没有索引功能，**不能用索引随机访问（常数时间）**，只能用迭代器线性访问（线性时间）
 -   list 、 set  、各种 map 都是非线性存储，不能用索引遍历，**可以用迭代器遍历** 
 
+### 优先队列/ 堆（piority_queue）
 
+**默认封装的是大顶堆，可传入自定义cmp函数实现其他排序**
+
+#### 定义
+
+```c++
+// priority_queue<Type, Container, Compare>
+priority_queue<int, vector<int>, less<int>> pq;  // 大顶堆
+priority_queue<int, vector<int>, greater<int>> pq;  // 小顶堆
+```
+
+-   **Type**：存储的数据类型，例如 `int`、`pair<int, int>` 等
+-   **Container**：底层使用的容器，默认为 `std::vector<Type>`
+-   **Compare**：比较函数**结构体**，用于定义优先级顺序，默认是 `std::less<Type>`（大顶堆）
+
+#### 用法
+
+##### cmp 结构体
+
+**⚠️ 注意：**
+
+-   **需要把比较符号operator()封装在cmp结构体中定义**
+-   **由于默认实现是最大堆，因此自定义时“<”是大顶，“>”是小顶**
+
+```c++
+// 例：
+struct cmp {
+    bool operator()(pair<int, int> a, pair<int, int> b) {
+        if (a.first == b.first) {
+            return a.second < b.second;  // 按second大顶
+        }
+        return a.first > b.first;  // 按first小顶
+    }
+};
+```
+
+##### 用已有 vector 构造
+
+```c++
+// priority_queue<Type> pq(container.begin(), container.end());
+// 要求container的元素是Type类型（container 可以是vector、string、unordered_map等等）
+
+priority_queue<int> pq(nums.begin(), nums.end());
+```
+
+
+
+##### 常用成员函数
+
+| `push(const value_type&)` | 插入元素到优先队列中                 |
+| ------------------------- | ------------------------------------ |
+| **`pop()`**               | **移除优先级最高的元素（堆顶元素）** |
+| **`top()`**               | **返回优先级最高的元素（堆顶元素）** |
+| **`size()`**              | **返回优先队列中元素的数量**         |
+| **`empty()`**             | **判断优先队列是否为空**             |
+
+***⚠️注意：不能直接修改 .top 的值（不能被识别到改动并自动调整堆）！！必须先 .pop 再 .push 新的值！！*** 
 
 ### 比较符
 
@@ -257,6 +314,7 @@ vector<T>().swap(vec);
 #### 对 Map 的支持
 
 -   **`.erase((T1) key)`** ：抽除键为 **`key`** 的元素（改变 **`.size()`** ，不改变**`.capacity()`** ）
+-   **`.clear()`** ：清空所有元素（改变 **`.size()`** ，不改变**`.capacity()`** ）
 
 
 
